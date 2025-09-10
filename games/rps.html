@@ -15,73 +15,78 @@ body {
   align-items:center; 
   min-height:100vh; 
   margin:0;
+  padding:0 10px;
 }
 header { 
   width:100%; 
-  padding:20px; 
+  padding:15px 10px; 
   text-align:center; 
-  font-size:2rem; 
+  font-size:1.6rem; 
   backdrop-filter:blur(10px); 
-  background:rgba(20,20,20,0.4); 
+  background:rgba(20,20,20,0.5); 
   border-bottom:1px solid rgba(255,255,255,0.1); 
-  margin-bottom:20px;
+  margin-bottom:15px;
 }
 header img.logo { 
-  height:40px; 
+  height:30px; 
   vertical-align:middle; 
-  margin-right:10px; 
+  margin-right:8px; 
 }
 nav { 
-  margin-top:10px; 
+  margin-top:8px; 
   display:flex; 
   justify-content:center; 
-  gap:20px; 
+  gap:10px; 
   flex-wrap:wrap; 
 }
 nav a { 
-  padding:6px 15px; 
-  border-radius:25px; 
+  padding:4px 10px; 
+  border-radius:20px; 
   background: rgba(255,255,255,0.05); 
   transition:0.3s; 
   color:#fff; 
   text-decoration:none; 
+  font-size:0.9rem;
 }
 nav a:hover { 
   background: linear-gradient(90deg, #00ffff, #a100ff); 
-  box-shadow:0 0 10px #00ffff,0 0 20px #a100ff; 
+  box-shadow:0 0 6px #00ffff,0 0 12px #a100ff; 
 }
 
 .controls { 
   display:flex; 
-  gap:15px; 
-  margin-bottom:20px; 
+  gap:10px; 
+  margin-bottom:15px; 
   flex-wrap:wrap; 
   justify-content:center; 
 }
 .controls button { 
-  cursor: pointer;
+  cursor:pointer;
   background: rgba(255,255,255,0.05);
-  padding: 8px 15px;
+  padding:10px 18px;
   border-radius: 25px;
   transition: 0.3s;
   border: none;
   color: #fff;
   font-weight: 600;
+  font-size:1rem;
 }
 .controls button:hover { 
   background: linear-gradient(90deg,#00ffff,#a100ff);
   color:#000;
-  box-shadow:0 0 10px #00ffff,0 0 20px #a100ff;
+  box-shadow:0 0 8px #00ffff,0 0 15px #a100ff;
 }
 
 #choices { 
   display:flex; 
   gap:15px; 
   margin-bottom:20px; 
+  flex-wrap:wrap;
+  justify-content:center;
 }
 .choice-btn { 
-  padding:15px 25px; 
-  font-size:1.5rem; 
+  padding:20px 30px; 
+  font-size:1.8rem; 
   border-radius:25px; 
   border:none; 
   cursor:pointer; 
@@ -93,11 +98,14 @@ nav a:hover {
   color:#000; 
 }
 
-#result { font-size:1.5rem; margin-bottom:10px; }
-#score { font-size:1.2rem; }
+#result { font-size:1.5rem; margin-bottom:10px; text-align:center; word-break:break-word;}
+#score { font-size:1.3rem; text-align:center; }
 
 @media(max-width:500px){ 
-  .choice-btn{padding:10px 15px; font-size:1.2rem;} 
+  .choice-btn{padding:15px 20px; font-size:1.5rem;} 
+  .controls button{padding:8px 12px; font-size:0.9rem;}
+  header{font-size:1.4rem; padding:10px 5px;}
+  nav a{font-size:0.8rem; padding:3px 8px;}
 }
 </style>
 </head>
