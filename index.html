@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PoliPlay — Мініігри</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* --- Загальні стилі --- */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* --- Header --- */
+    header {
+      width: 100%;
+      padding: 30px 20px;
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      position: relative;
+      backdrop-filter: blur(10px);
+      background: rgba(20,20,20,0.4);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    header img.logo {
+      height: 50px;
+      vertical-align: middle;
+      margin-right: 15px;
+    }
+
+    /* --- Навігація --- */
+    nav {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      padding: 8px 15px;
+      border-radius: 25px;
+      background: rgba(255,255,255,0.05);
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      background: linear-gradient(90deg, #00ffff, #a100ff);
+      box-shadow: 0 0 10px #00ffff, 0 0 20px #a100ff;
+    }
+
+    /* --- Сітка карток ігор --- */
+    .games-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 25px;
+      width: 90%;
+      max-width: 1200px;
+      padding: 40px 0;
+    }
+
+    .game-card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
+      padding: 25px 15px;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+
+    .game-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 0 15px #00ffff, 0 0 25px #a100ff;
+    }
+
+    .game-card img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin-bottom: 15px;
+    }
+
+    .game-card h3 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .play-btn {
+      display: inline-block;
+      padding: 8px 18px;
+      border-radius: 25px;
+      background: linear-gradient(90deg, #00ffff, #a100ff);
+      color: #000;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .play-btn:hover {
+      box-shadow: 0 0 10px #00ffff, 0 0 20px #a100ff;
+    }
+
+    /* --- Адаптивність --- */
+    @media(max-width: 600px) {
+      header { font-size: 2rem; padding: 25px 10px; }
+      .games-container { gap: 20px; padding: 30px 0; }
+      .game-card img { width: 60px; height: 60px; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <!-- Логотип ти підставиш сам -->
+    <img src="icons/logo.png" alt="PoliPlay Logo" class="logo">
+    PoliPlay
+    <nav>
+      <a href="#">Головна</a>
+      <a href="#">Усі ігри</a>
+      <a href="#">Рейтинг</a>
+      <a href="#">Про сайт</a>
+    </nav>
+  </header>
+
+  <main class="games-container">
+    <div class="game-card">
+      <img src="icons/battleship.png" alt="Морський бій">
+      <h3>Морський бій</h3>
+      <a href="games/battleship.html" class="play-btn">Грати</a>
+    </div>
+
+    <div class="game-card">
+      <img src="icons/tic-tac-toe.png" alt="Крестики-нулики">
+      <h3>Крестики-нулики</h3>
+      <a href="games/tic-tac-toe.html" class="play-btn">Грати</a>
+    </div>
+
+    <div class="game-card">
+      <img src="icons/maze.png" alt="Лабіринт">
+      <h3>Лабіринт</h3>
+      <a href="games/maze.html" class="play-btn">Грати</a>
+    </div>
+
+    <div class="game-card">
+      <img src="icons/memory.png" alt="Пам’ять">
+      <h3>Пам’ять</h3>
+      <a href="games/memory.html" class="play-btn">Грати</a>
+    </div>
+
+    <div class="game-card">
+      <img src="icons/rps.png" alt="Камінь-ножиці-папір">
+      <h3>Камінь-ножиці-папір</h3>
+      <a href="games/rps.html" class="play-btn">Грати</a>
+    </div>
+
+    <div class="game-card">
+      <img src="icons/chase.png" alt="Дожени кнопку">
+      <h3>Дожени кнопку</h3>
+      <a href="games/chase-button.html" class="play-btn">Грати</a>
+    </div>
+
+    <div class="game-card">
+      <img src="icons/reaction.png" alt="Реакшн тест">
+      <h3>Реакшн тест</h3>
+      <a href="games/reaction.html" class="play-btn">Грати</a>
+    </div>
+
+    <div class="game-card">
+      <img src="icons/snake.png" alt="CSS Snake">
+      <h3>CSS Snake</h3>
+      <a href="games/css-snake.html" class="play-btn">Грати</a>
+    </div>
+
+    <div class="game-card">
+      <img src="icons/whoclicks.png" alt="Хто швидше натисне">
+      <h3>Хто швидше натисне</h3>
+      <a href="games/whoclicks.html" class="play-btn">Грати</a>
+    </div>
+
+    <div class="game-card">
+      <img src="icons/puzzle.png" alt="Міні-пазл">
+      <h3>Міні-пазл</h3>
+      <a href="games/puzzle.html" class="play-btn">Грати</a>
+    </div>
+  </main>
+
+</body>
+</html>
