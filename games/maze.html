@@ -17,7 +17,7 @@ nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0
 .controls label, .controls button { cursor:pointer; background: rgba(255,255,255,0.05); padding:6px 12px; border-radius:20px; transition:0.3s; border:none; color:#fff; font-size:0.9rem; }
 .controls label:hover, .controls button:hover { background: linear-gradient(90deg,#00ffff,#a100ff); color:#000; }
 
-#maze { display:grid; gap:2px; margin-bottom:20px; }
+#maze { display:grid; gap:2px; margin-bottom:15px; touch-action: none; }
 
 .cell { width:35px; height:35px; display:flex; justify-content:center; align-items:center; font-weight:bold; border-radius:4px; transition:0.2s;}
 .wall { background:#111; }
@@ -27,11 +27,15 @@ nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0
 .finish { background:#ff00ff; color:#000; }
 .player { background:#ffff00; color:#000; box-shadow:0 0 8px #ffff00,0 0 15px #ffff00;}
 
+#mobile-controls { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-bottom:20px;}
+#mobile-controls button { width:50px; height:50px; font-size:1.2rem; border-radius:10px; }
+
 @media(max-width:600px){ 
   .cell{width:25px;height:25px;} 
   header{font-size:1.4rem; padding:10px 5px;}
   nav a{font-size:0.8rem; padding:3px 8px;}
   .controls label, .controls button{font-size:0.8rem; padding:5px 10px;}
+  #mobile-controls button{width:40px;height:40px;font-size:1rem;}
 }
 </style>
 </head>
@@ -60,6 +64,13 @@ nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0
 </div>
 
 <div id="maze"></div>
+
+<div id="mobile-controls">
+  <button onclick="movePlayer(0,-1)">↑</button><br>
+  <button onclick="movePlayer(-1,0)">←</button>
+  <button onclick="movePlayer(0,1)">↓</button>
+  <button onclick="movePlayer(1,0)">→</button>
+</div>
 
 <script>
 const mazeEl = document.getElementById('maze');
