@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoliPlay — Лабіринт</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body { font-family:'Inter', sans-serif; background:#0a0a0a; color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; margin:0;}
+header { width:100%; padding:15px 10px; text-align:center; font-size:1.6rem; backdrop-filter:blur(10px); background:rgba(20,20,20,0.5); border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:15px;}
+header img.logo { height:30px; vertical-align:middle; margin-right:8px; }
+nav { margin-top:8px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+nav a { padding:4px 10px; border-radius:20px; background: rgba(255,255,255,0.05); transition:0.3s; color:#fff; text-decoration:none; font-size:0.9rem;}
+nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0 0 6px #00ffff,0 0 12px #a100ff; }
+
+.controls { display:flex; gap:8px; margin-bottom:15px; flex-wrap:wrap; justify-content:center; font-size:0.9rem;}
+.controls label, .controls button { cursor:pointer; background: rgba(255,255,255,0.05); padding:6px 12px; border-radius:20px; transition:0.3s; border:none; color:#fff; font-size:0.9rem; }
+.controls label:hover, .controls button:hover { background: linear-gradient(90deg,#00ffff,#a100ff); color:#000; }
+
+#maze { display:grid; gap:2px; margin-bottom:20px; }
+
+.cell { width:35px; height:35px; display:flex; justify-content:center; align-items:center; font-weight:bold; border-radius:4px; transition:0.2s;}
+.wall { background:#111; }
+.path { background: rgba(255,255,255,0.05); }
+.path.hovered { background: rgba(0,255,255,0.3); box-shadow:0 0 8px #00ffff,0 0 15px #a100ff; }
+.start { background:#00ffcc; color:#000; }
+.finish { background:#ff00ff; color:#000; }
+.player { background:#ffff00; color:#000; box-shadow:0 0 8px #ffff00,0 0 15px #ffff00;}
+
+@media(max-width:600px){ 
+  .cell{width:25px;height:25px;} 
+  header{font-size:1.4rem; padding:10px 5px;}
+  nav a{font-size:0.8rem; padding:3px 8px;}
+  .controls label, .controls button{font-size:0.8rem; padding:5px 10px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="../icons/logo.png" alt="PoliPlay Logo" class="logo">
+  PoliPlay — Лабіринт
+  <nav>
+    <a href="../index.html">Головна</a>
+    <a href="../all-games.html">Усі ігри</a>
+    <a href="../rating.html">Рейтинг</a>
+    <a href="../about.html">Про сайт</a>
+  </nav>
+</header>
+
+<div class="controls">
+  <label>Рівень:
+    <select id="level">
+      <option value="easy">Легкий</option>
+      <option value="medium">Середній</option>
+      <option value="hard">Важкий</option>
+    </select>
+  </label>
+  <button onclick="generateMaze()">Створити лабіринт</button>
+</div>
+
+<div id="maze"></div>
+
+<script>
+const mazeEl = document.getElementById('maze');
+let playerPos = {x:0, y:0};
+let maze = [];
+let rows = 10;
+let cols = 10;
+
+function generateMaze(){
+  const level = document.getElementById('level').value;
+  mazeEl.innerHTML = '';
+  maze = [];
+  playerPos = {x:0,y:0};
+
+  let wallChance = 0.2;
+  if(level==='medium') wallChance=0.35;
+  if(level==='hard') wallChance=0.5;
+
+  for(let y=0;y<rows;y++){
+    maze[y]=[];
+    for(let x=0;x<cols;x++){
+      maze[y][x]='wall';
+    }
+  }
+
+  let path = [];
+  let x=0,y=0;
+  maze[y][x]='start';
+  path.push({x,y});
+  while(x!==cols-1 || y!==rows-1){
+    let moves=[];
+    if(x<cols-1) moves.push({x:x+1,y});
+    if(y<rows-1) moves.push({x,y:y+1});
+    let next = moves[Math.floor(Math.random()*moves.length)];
+    x=next.x; y=next.y; maze[y][x]='path'; path.push({x,y});
+  }
+  maze[rows-1][cols-1]='finish';
+
+  for(let y=0;y<rows;y++){
+    for(let x=0;x<cols;x++){
+      if(maze[y][x]!=='path' && maze[y][x]!=='start' && maze[y][x]!=='finish'){
+        if(Math.random()<wallChance) maze[y][x]='wall';
+        else maze[y][x]='path';
+      }
+    }
+  }
+
+  playerPos={x:0,y:0};
+  mazeEl.style.gridTemplateColumns=`repeat(${cols},35px)`;
+  mazeEl.style.gridTemplateRows=`repeat(${rows},35px)`;
+
+  for(let y=0;y<rows;y++){
+    for(let x=0;x<cols;x++){
+      const div = document.createElement('div');
+      div.className='cell '+maze[y][x];
+      mazeEl.appendChild(div);
+    }
+  }
+  updatePlayer();
+}
+
+function updatePlayer(){
+  const cells = mazeEl.children;
+  for(let i=0;i<cells.length;i++){
+    cells[i].classList.remove('player','hovered');
+  }
+  const index = playerPos.y*cols + playerPos.x;
+  cells[index].classList.add('player');
+
+  const directions = [[0,1],[1,0],[-1,0],[0,-1]];
+  directions.forEach(([dx,dy])=>{
+    const nx=playerPos.x+dx;
+    const ny=playerPos.y+dy;
+    if(nx>=0&&nx<cols&&ny>=0&&ny<rows){
+      const idx=ny*cols+nx;
+      if(maze[ny][nx]==='path' || maze[ny][nx]==='finish') cells[idx].classList.add('hovered');
+    }
+  });
+}
+
+function movePlayer(dx,dy){
+  const newX=playerPos.x+dx;
+  const newY=playerPos.y+dy;
+  if(newX<0||newX>=cols||newY<0||newY>=rows) return;
+  if(maze[newY][newX]==='wall') return;
+
+  playerPos={x:newX,y:newY};
+  updatePlayer();
+
+  if(maze[newY][newX]==='finish'){
+    setTimeout(()=>alert('Вітаю! Ви дійшли до фінішу!'),50);
+  }
+}
+
+document.addEventListener('keydown',(e)=>{
+  if(e.key==='ArrowUp'||e.key==='w') movePlayer(0,-1);
+  if(e.key==='ArrowDown'||e.key==='s') movePlayer(0,1);
+  if(e.key==='ArrowLeft'||e.key==='a') movePlayer(-1,0);
+  if(e.key==='ArrowRight'||e.key==='d') movePlayer(1,0);
+});
+
+generateMaze();
+</script>
+
+</body>
+</html>

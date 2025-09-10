@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoliPlay — Snake</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body { font-family:'Inter', sans-serif; background:#0a0a0a; color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; margin:0; }
+header { width:100%; padding:20px; text-align:center; font-size:2rem; backdrop-filter:blur(10px); background:rgba(20,20,20,0.4); border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:20px;}
+header img.logo { height:40px; vertical-align:middle; margin-right:10px; }
+nav { margin-top:10px; display:flex; justify-content:center; gap:20px; flex-wrap:wrap; }
+nav a { padding:6px 15px; border-radius:25px; background: rgba(255,255,255,0.05); transition:0.3s; color:#fff; text-decoration:none; }
+nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0 0 10px #00ffff,0 0 20px #a100ff; }
+
+.controls { display:flex; gap:15px; margin-bottom:20px; flex-wrap:wrap; justify-content:center; }
+.controls button, .controls select { cursor:pointer; background: rgba(255,255,255,0.05); padding:8px 15px; border-radius:25px; transition:0.3s; border:none; color:#fff; }
+.controls button:hover, .controls select:hover { background: linear-gradient(90deg,#00ffff,#a100ff); color:#000; }
+
+#game-area { display:grid; grid-template-columns:repeat(20,30px); grid-template-rows:repeat(20,30px); gap:1px; background:#111; border:2px solid rgba(255,255,255,0.1); border-radius:10px; }
+.cell { width:30px; height:30px; background:#222; }
+.snake { background:#0f0; }
+.food { background:#0ff; border-radius:50%; }
+.bad { background:#f00; border-radius:50%; }
+.checkpoint { background:#f0f; border-radius:50%; }
+
+#scoreboard { margin-top:15px; font-size:1.5rem; }
+@media(max-width:700px){
+  #game-area { grid-template-columns:repeat(20,15px); grid-template-rows:repeat(20,15px); }
+  .cell { width:15px; height:15px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="../icons/logo.png" alt="PoliPlay Logo" class="logo">
+  PoliPlay — Snake
+  <nav>
+    <a href="../index.html">Головна</a>
+    <a href="../all-games.html">Усі ігри</a>
+    <a href="../rating.html">Рейтинг</a>
+    <a href="../about.html">Про сайт</a>
+  </nav>
+</header>
+
+<div class="controls">
+  <button onclick="showRules()">Правила</button>
+  <button onclick="startGame()">Почати знову</button>
+  <button onclick="exitGame()">Вийти</button>
+  <select id="difficulty" onchange="changeDifficulty()">
+    <option value="easy" selected>Легкий</option>
+    <option value="medium">Середній</option>
+    <option value="hard">Важкий</option>
+  </select>
+</div>
+
+<div id="game-area"></div>
+<div id="scoreboard">Очки: 0</div>
+
+<script>
+const area = document.getElementById('game-area');
+const scoreboard = document.getElementById('scoreboard');
+const difficultySelect = document.getElementById('difficulty');
+
+const gridSize = 20;
+let snake = [{x:10,y:10}];
+let direction = {x:1,y:0};
+let food = {}, bad = {}, checkpoint = {};
+let score = 0;
+let interval;
+let gameSpeed = 200;
+let difficulty = 'easy';
+
+const speeds = { easy:200, medium:150, hard:100 };
+const badCount = { easy:1, medium:3, hard:5 };
+
+function createGrid(){
+  area.innerHTML='';
+  for(let y=0;y<gridSize;y++){
+    for(let x=0;x<gridSize;x++){
+      const cell=document.createElement('div');
+      cell.classList.add('cell');
+      cell.dataset.x=x;
+      cell.dataset.y=y;
+      area.appendChild(cell);
+    }
+  }
+}
+
+function getCell(x,y){ return area.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`); }
+
+function spawnFood(){
+  let fx,fy;
+  do{ fx=Math.floor(Math.random()*gridSize); fy=Math.floor(Math.random()*gridSize); }
+  while(snake.some(s=>s.x===fx && s.y===fy) || (checkpoint.x===fx && checkpoint.y===fy));
+  food={x:fx,y:fy};
+}
+
+function spawnBad(){
+  bad=[];
+  for(let i=0;i<badCount[difficulty];i++){
+    let bx,by;
+    do{ bx=Math.floor(Math.random()*gridSize); by=Math.floor(Math.random()*gridSize); }
+    while(snake.some(s=>s.x===bx && s.y===by) || (bx===food.x && by===food.y) || (checkpoint.x===bx && checkpoint.y===checkpoint.y) || bad.some(b=>b.x===bx && b.y===by));
+    bad.push({x:bx,y:by});
+  }
+}
+
+function spawnCheckpoint(){
+  let cx,cy;
+  do{ cx=Math.floor(Math.random()*gridSize); cy=Math.floor(Math.random()*gridSize); }
+  while(snake.some(s=>s.x===cx && s.y===cy) || (cx===food.x && cy===food.y) || bad.some(b=>b.x===cx && b.y===cy));
+  checkpoint={x:cx,y:cy};
+}
+
+function draw(){
+  document.querySelectorAll('.cell').forEach(c=>c.classList.remove('snake','food','bad','checkpoint'));
+  snake.forEach(s=>getCell(s.x,s.y).classList.add('snake'));
+  if(food.x!==undefined) getCell(food.x,food.y).classList.add('food');
+  bad.forEach(b=>getCell(b.x,b.y).classList.add('bad'));
+  if(checkpoint.x!==undefined) getCell(checkpoint.x,checkpoint.y).classList.add('checkpoint');
+}
+
+function move(){
+  const head={x:snake[0].x+direction.x, y:snake[0].y+direction.y};
+  if(head.x<0||head.x>=gridSize||head.y<0||head.y>=gridSize||snake.some(s=>s.x===head.x && s.y===head.y)){
+    clearInterval(interval);
+    alert(`Гру закінчено! Очки: ${score}`);
+    return;
+  }
+  snake.unshift(head);
+
+  if(head.x===food.x && head.y===food.y){ score++; spawnFood(); }
+  else if(bad.some(b=>b.x===head.x && b.y===head.y)){ score--; if(snake.length>1) snake.pop(); spawnBad(); }
+  else if(head.x===checkpoint.x && head.y===checkpoint.y){ spawnFood(); spawnBad(); spawnCheckpoint(); }
+  else snake.pop();
+
+  scoreboard.textContent=`Очки: ${score}`;
+  draw();
+}
+
+function startGame(){
+  createGrid();
+  snake=[{x:10,y:10}];
+  direction={x:1,y:0};
+  score=0;
+  gameSpeed = speeds[difficulty];
+  spawnFood();
+  spawnBad();
+  spawnCheckpoint();
+  clearInterval(interval);
+  interval=setInterval(move,gameSpeed);
+}
+
+function showRules(){
+  alert("Класична змійка:\n- Збирай їжу (синя) → ростеш і отримуєш очки\n- Шкідлива їжа (червона) → зменшуєшся і втрачаєш очки\n- Чекпойнт (фіолетова) → респавн всіх об'єктів\n- Стріли / WASD для керування\n- Вибирай рівень складності");
+}
+
+function exitGame(){ if(confirm("Ви точно хочете вийти?")) window.location.href="../index.html"; }
+
+document.addEventListener('keydown',(e)=>{
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(e.key)) e.preventDefault();
+  if((e.key==='ArrowUp'||e.key==='w') && direction.y!==1) direction={x:0,y:-1};
+  if((e.key==='ArrowDown'||e.key==='s') && direction.y!==-1) direction={x:0,y:1};
+  if((e.key==='ArrowLeft'||e.key==='a') && direction.x!==1) direction={x:-1,y:0};
+  if((e.key==='ArrowRight'||e.key==='d') && direction.x!==-1) direction={x:1,y:0};
+});
+
+function changeDifficulty(){ difficulty=difficultySelect.value; startGame(); }
+
+startGame();
+</script>
+
+</body>
+</html>

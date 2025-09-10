@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoliPlay — Камінь-Ножиці-Папір</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body { 
+  font-family:'Inter', sans-serif; 
+  background:#0a0a0a; 
+  color:#fff; 
+  display:flex; 
+  flex-direction:column; 
+  align-items:center; 
+  min-height:100vh; 
+  margin:0;
+}
+header { 
+  width:100%; 
+  padding:20px; 
+  text-align:center; 
+  font-size:2rem; 
+  backdrop-filter:blur(10px); 
+  background:rgba(20,20,20,0.4); 
+  border-bottom:1px solid rgba(255,255,255,0.1); 
+  margin-bottom:20px;
+}
+header img.logo { 
+  height:40px; 
+  vertical-align:middle; 
+  margin-right:10px; 
+}
+nav { 
+  margin-top:10px; 
+  display:flex; 
+  justify-content:center; 
+  gap:20px; 
+  flex-wrap:wrap; 
+}
+nav a { 
+  padding:6px 15px; 
+  border-radius:25px; 
+  background: rgba(255,255,255,0.05); 
+  transition:0.3s; 
+  color:#fff; 
+  text-decoration:none; 
+}
+nav a:hover { 
+  background: linear-gradient(90deg, #00ffff, #a100ff); 
+  box-shadow:0 0 10px #00ffff,0 0 20px #a100ff; 
+}
+
+.controls { 
+  display:flex; 
+  gap:15px; 
+  margin-bottom:20px; 
+  flex-wrap:wrap; 
+  justify-content:center; 
+}
+.controls button { 
+  cursor: pointer;
+  background: rgba(255,255,255,0.05);
+  padding: 8px 15px;
+  border-radius: 25px;
+  transition: 0.3s;
+  border: none;
+  color: #fff;
+  font-weight: 600;
+}
+.controls button:hover { 
+  background: linear-gradient(90deg,#00ffff,#a100ff);
+  color:#000;
+  box-shadow:0 0 10px #00ffff,0 0 20px #a100ff;
+}
+
+#choices { 
+  display:flex; 
+  gap:15px; 
+  margin-bottom:20px; 
+}
+.choice-btn { 
+  padding:15px 25px; 
+  font-size:1.5rem; 
+  border-radius:25px; 
+  border:none; 
+  cursor:pointer; 
+  background: rgba(255,255,255,0.05); 
+  transition:0.3s; 
+}
+.choice-btn:hover { 
+  background: linear-gradient(90deg,#00ffff,#a100ff); 
+  color:#000; 
+}
+
+#result { font-size:1.5rem; margin-bottom:10px; }
+#score { font-size:1.2rem; }
+
+@media(max-width:500px){ 
+  .choice-btn{padding:10px 15px; font-size:1.2rem;} 
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="../icons/logo.png" alt="PoliPlay Logo" class="logo">
+  PoliPlay — Камінь-Ножиці-Папір
+  <nav>
+    <a href="../index.html">Головна</a>
+    <a href="../all-games.html">Усі ігри</a>
+    <a href="../rating.html">Рейтинг</a>
+    <a href="../about.html">Про сайт</a>
+  </nav>
+</header>
+
+<div class="controls">
+  <button onclick="showRules()">Правила</button>
+  <button onclick="resetGame()">Почати знову</button>
+  <button onclick="exitGame()">Вийти</button>
+</div>
+
+<div id="choices">
+  <button class="choice-btn" onclick="playerChoice('rock')">🪨</button>
+  <button class="choice-btn" onclick="playerChoice('scissors')">✂️</button>
+  <button class="choice-btn" onclick="playerChoice('paper')">📄</button>
+</div>
+
+<div id="result"></div>
+<div id="score">Гравець: 0 | Бот: 0</div>
+
+<script>
+let playerScore = 0;
+let botScore = 0;
+
+function playerChoice(choice){
+  const options = ['rock','paper','scissors'];
+  const bot = options[Math.floor(Math.random()*3)];
+  let res='';
+
+  if(choice===bot){ res="Нічия!"; }
+  else if(
+    (choice==='rock' && bot==='scissors') ||
+    (choice==='scissors' && bot==='paper') ||
+    (choice==='paper' && bot==='rock')
+  ){
+    res="Ви виграли!";
+    playerScore++;
+  } else {
+    res="Ви програли!";
+    botScore++;
+  }
+
+  document.getElementById('result').textContent=`Ви: ${choice.toUpperCase()} | Бот: ${bot.toUpperCase()} → ${res}`;
+  document.getElementById('score').textContent=`Гравець: ${playerScore} | Бот: ${botScore}`;
+}
+
+function resetGame(){
+  playerScore=0;
+  botScore=0;
+  document.getElementById('result').textContent='';
+  document.getElementById('score').textContent=`Гравець: ${playerScore} | Бот: ${botScore}`;
+}
+
+function showRules(){
+  alert("Правила:\n🪨 Камінь б’є ✂️ Ножиці\n✂️ Ножиці ріжуть 📄 Папір\n📄 Папір накриває 🪨 Камінь\nОбирай одну з трьох опцій, щоб зіграти проти бота.");
+}
+
+function exitGame(){
+  if(confirm("Ви точно хочете вийти?")) window.location.href="../index.html";
+}
+</script>
+
+</body>
+</html>

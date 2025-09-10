@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoliPlay — Пам'ять</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body { font-family:'Inter', sans-serif; background:#0a0a0a; color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; margin:0; padding:0;}
+header { width:100%; padding:15px 10px; text-align:center; font-size:1.6rem; backdrop-filter:blur(10px); background:rgba(20,20,20,0.5); border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:15px;}
+header img.logo { height:30px; vertical-align:middle; margin-right:8px; }
+nav { margin-top:8px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+nav a { padding:4px 10px; border-radius:20px; background: rgba(255,255,255,0.05); transition:0.3s; color:#fff; text-decoration:none; font-size:0.9rem;}
+nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0 0 6px #00ffff,0 0 12px #a100ff; }
+
+.controls { display:flex; gap:8px; margin-bottom:15px; flex-wrap:wrap; justify-content:center; font-size:0.9rem;}
+.controls button { cursor:pointer; background: rgba(255,255,255,0.05); padding:6px 12px; border-radius:20px; transition:0.3s; border:none; color:#fff; font-size:0.9rem; }
+.controls button:hover { background: linear-gradient(90deg,#00ffff,#a100ff); color:#000; }
+
+#game { display:grid; grid-gap:10px; justify-content:center; width:95vw; max-width:500px; }
+.card { aspect-ratio:1/1; background: rgba(255,255,255,0.05); border-radius:10px; display:flex; justify-content:center; align-items:center; font-size:2rem; cursor:pointer; transition:0.3s; user-select:none; }
+.card:hover { background: rgba(0,255,255,0.2); box-shadow:0 0 8px #00ffff,0 0 15px #a100ff; }
+.card.flipped, .card.matched { background: rgba(0,255,255,0.3); }
+
+@media(max-width:500px){ 
+  .controls button{font-size:0.8rem; padding:5px 10px;}
+  nav a{font-size:0.8rem; padding:3px 8px;}
+  header{font-size:1.4rem; padding:10px 5px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="../icons/logo.png" alt="PoliPlay Logo" class="logo">
+  PoliPlay — Пам'ять
+  <nav>
+    <a href="../index.html">Головна</a>
+    <a href="../all-games.html">Усі ігри</a>
+    <a href="../rating.html">Рейтинг</a>
+    <a href="../about.html">Про сайт</a>
+  </nav>
+</header>
+
+<div class="controls">
+  <button onclick="showRules()">Правила</button>
+  <button onclick="startGame()">Почати знову</button>
+  <button onclick="exitGame()">Вийти</button>
+</div>
+
+<div id="game"></div>
+
+<script>
+const gameEl = document.getElementById('game');
+let cards = [];
+let firstCard = null;
+let secondCard = null;
+let lockBoard = false;
+const icons = ['🍎','🍌','🍇','🍒','🍉','🥝','🍍','🍓'];
+
+function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+
+function startGame(){
+  firstCard=null;
+  secondCard=null;
+  lockBoard=false;
+  gameEl.innerHTML='';
+  cards = shuffle([...icons, ...icons]);
+
+  // Автоматичне визначення колонок під ширину екрана
+  const cols = window.innerWidth < 400 ? 4 : 4;
+  gameEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+  cards.forEach(icon=>{
+    const div = document.createElement('div');
+    div.classList.add('card');
+    div.dataset.icon = icon;
+    div.textContent='';
+    div.addEventListener('click',flipCard);
+    gameEl.appendChild(div);
+  });
+}
+
+function flipCard(){
+  if(lockBoard) return;
+  if(this.classList.contains('flipped') || this.classList.contains('matched')) return;
+  this.textContent=this.dataset.icon;
+  this.classList.add('flipped');
+  if(!firstCard){ firstCard=this; return; }
+  secondCard=this;
+  if(firstCard.dataset.icon===secondCard.dataset.icon){
+    firstCard.classList.add('matched');
+    secondCard.classList.add('matched');
+    firstCard=null;
+    secondCard=null;
+  } else {
+    lockBoard=true;
+    setTimeout(()=>{
+      firstCard.textContent='';
+      secondCard.textContent='';
+      firstCard.classList.remove('flipped');
+      secondCard.classList.remove('flipped');
+      firstCard=null;
+      secondCard=null;
+      lockBoard=false;
+    },1000);
+  }
+}
+
+function showRules(){
+  alert("Мета гри: знайти всі парні карти.\nКлікай по дві карти, якщо вони співпадають – залишаються відкритими.\nГра закінчується, коли всі пари знайдено.");
+}
+
+function exitGame(){
+  if(confirm("Ви точно хочете вийти?")) window.location.href="../index.html";
+}
+
+// Старт гри при завантаженні
+startGame();
+
+// Динамічне оновлення сітки при зміні розміру екрану
+window.addEventListener('resize', startGame);
+</script>
+
+</body>
+</html>

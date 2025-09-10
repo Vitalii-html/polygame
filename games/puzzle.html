@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoliPlay — Міні-пазл</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body { font-family:'Inter', sans-serif; background:#0a0a0a; color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; margin:0; }
+header { width:100%; padding:20px; text-align:center; font-size:2rem; backdrop-filter:blur(10px); background:rgba(20,20,20,0.4); border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:20px;}
+header img.logo { height:40px; vertical-align:middle; margin-right:10px; }
+nav { margin-top:10px; display:flex; justify-content:center; gap:20px; flex-wrap:wrap; }
+nav a { padding:6px 15px; border-radius:25px; background: rgba(255,255,255,0.05); transition:0.3s; color:#fff; text-decoration:none; }
+nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0 0 10px #00ffff,0 0 20px #a100ff; }
+
+.controls { display:flex; gap:15px; margin-bottom:20px; flex-wrap:wrap; justify-content:center; }
+.controls button, .controls select { cursor:pointer; background: rgba(255,255,255,0.05); padding:8px 15px; border-radius:25px; transition:0.3s; border:none; color:#fff; }
+.controls button:hover, .controls select:hover { background: linear-gradient(90deg,#00ffff,#a100ff); color:#000; }
+
+#puzzle-area { display:grid; border:2px solid rgba(255,255,255,0.1); border-radius:10px; gap:2px; max-width:90vw; max-height:90vw; }
+.piece { background-size:cover; cursor:pointer; transition: all 0.3s ease; box-shadow:0 0 2px #00ffff; }
+.piece:hover { transform:scale(1.1); box-shadow:0 0 15px #00ffff,0 0 30px #a100ff; border-radius:5px; }
+#message { margin-top:15px; font-size:1.5rem; text-align:center; }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="../icons/logo.png" alt="PoliPlay Logo" class="logo">
+  PoliPlay — Міні-пазл
+  <nav>
+    <a href="../index.html">Головна</a>
+    <a href="../all-games.html">Усі ігри</a>
+    <a href="../rating.html">Рейтинг</a>
+    <a href="../about.html">Про сайт</a>
+  </nav>
+</header>
+
+<div class="controls">
+  <button onclick="showRules()">Правила</button>
+  <button onclick="startGame()">Почати знову</button>
+  <button onclick="exitGame()">Вийти</button>
+  <select id="difficulty" onchange="changeDifficulty()">
+    <option value="easy" selected>Легкий 5×5</option>
+    <option value="medium">Середній 10×10</option>
+    <option value="hard">Важкий 15×15</option>
+  </select>
+</div>
+
+<div id="puzzle-area"></div>
+<div id="message"></div>
+
+<script>
+const puzzleArea = document.getElementById('puzzle-area');
+const difficultySelect = document.getElementById('difficulty');
+const message = document.getElementById('message');
+
+let size = 5;
+let pieces = [];
+let firstClick = null;
+let currentImage = '';
+
+// Масив картинок для кожного рівня з правильними шляхами
+const images = {
+  easy: ['../images/easy1.png','../images/easy2.png','../images/easy3.png','../images/easy4.png','../images/easy5.png','../images/easy6.png','../images/easy7.png','../images/easy8.png','../images/easy9.png','../images/easy10.png'],
+  medium: ['../images/medium1.png','../images/medium2.png','../images/medium3.png','../images/medium4.png','../images/medium5.png','../images/medium6.png','../images/medium7.png','../images/medium8.png','../images/medium9.png','../images/medium10.png'],
+  hard: ['../images/hard1.png','../images/hard2.png','../images/hard3.png','../images/hard4.png','../images/hard5.png','../images/hard6.png','../images/hard7.png','../images/hard8.png','../images/hard9.png','../images/hard10.png']
+};
+
+function shuffle(array){
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
+  }
+  return array;
+}
+
+function createPuzzle(imgURL){
+  puzzleArea.innerHTML='';
+  puzzleArea.style.gridTemplateColumns=`repeat(${size},1fr)`;
+  puzzleArea.style.gridTemplateRows=`repeat(${size},1fr)`;
+  pieces = [];
+  for(let y=0;y<size;y++){
+    for(let x=0;x<size;x++){
+      const div=document.createElement('div');
+      div.classList.add('piece');
+      div.style.backgroundImage=`url(${imgURL})`;
+      div.style.backgroundPosition=`${-x*100/(size-1)}% ${-y*100/(size-1)}%`;
+      div.dataset.correctX=x;
+      div.dataset.correctY=y;
+      puzzleArea.appendChild(div);
+      pieces.push(div);
+    }
+  }
+  shuffle(pieces).forEach(p=>puzzleArea.appendChild(p));
+  firstClick=null;
+  message.textContent='';
+}
+
+function swapPieces(a,b){
+  const aIndex = [...puzzleArea.children].indexOf(a);
+  const bIndex = [...puzzleArea.children].indexOf(b);
+  if(aIndex<bIndex){
+    puzzleArea.insertBefore(b,a);
+    puzzleArea.insertBefore(a,puzzleArea.children[bIndex]);
+  }else{
+    puzzleArea.insertBefore(a,b);
+    puzzleArea.insertBefore(b,puzzleArea.children[aIndex]);
+  }
+}
+
+function checkWin(){
+  let won=true;
+  pieces.forEach((p,index)=>{
+    const row = Math.floor(index/size);
+    const col = index%size;
+    if(p.dataset.correctX!=col || p.dataset.correctY!=row) won=false;
+  });
+  if(won) message.textContent='Вітаю! Пазл зібрано 🎉';
+}
+
+puzzleArea.addEventListener('click',e=>{
+  if(!e.target.classList.contains('piece')) return;
+  if(!firstClick){
+    firstClick=e.target;
+    firstClick.style.transform='scale(1.1)';
+    firstClick.style.boxShadow='0 0 20px #00ffff,0 0 40px #a100ff';
+  }else{
+    const secondClick=e.target;
+    swapPieces(firstClick,secondClick);
+    firstClick.style.transform='scale(1)';
+    firstClick.style.boxShadow='0 0 2px #00ffff';
+    firstClick=null;
+    checkWin();
+  }
+});
+
+function startGame(){
+  const difficulty = difficultySelect.value;
+  size = difficulty==='easy'?5 : difficulty==='medium'?10:15;
+  const imageList = images[difficulty];
+  currentImage = imageList[Math.floor(Math.random()*imageList.length)];
+  createPuzzle(currentImage);
+}
+
+function showRules(){
+  alert("Мета: зібрати картинку, міняючи місцями шматки.\n- Клікай на два шматки щоб поміняти їх місцями\n- Вибирай рівень складності: 5×5, 10×10, 15×15\n- Після збирання пазлу з’являється повідомлення");
+}
+
+function exitGame(){ if(confirm("Ви точно хочете вийти?")) window.location.href="../index.html"; }
+
+function changeDifficulty(){ startGame(); }
+
+startGame();
+</script>
+
+</body>
+</html>

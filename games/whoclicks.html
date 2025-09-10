@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoliPlay — Хто швидше натисне</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body { font-family:'Inter', sans-serif; background:#0a0a0a; color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; margin:0; }
+header { width:100%; padding:20px; text-align:center; font-size:2rem; backdrop-filter:blur(10px); background:rgba(20,20,20,0.4); border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:20px;}
+header img.logo { height:40px; vertical-align:middle; margin-right:10px; }
+nav { margin-top:10px; display:flex; justify-content:center; gap:20px; flex-wrap:wrap; }
+nav a { padding:6px 15px; border-radius:25px; background: rgba(255,255,255,0.05); transition:0.3s; color:#fff; text-decoration:none; }
+nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0 0 10px #00ffff,0 0 20px #a100ff; }
+
+.controls { display:flex; gap:15px; margin-bottom:20px; flex-wrap:wrap; justify-content:center; }
+.controls button, .controls select { cursor:pointer; background: rgba(255,255,255,0.05); padding:8px 15px; border-radius:25px; transition:0.3s; border:none; color:#fff; }
+.controls button:hover, .controls select:hover { background: linear-gradient(90deg,#00ffff,#a100ff); color:#000; }
+
+#game-area { width:90vw; max-width:600px; height:400px; background:#111; border:2px solid rgba(255,255,255,0.1); border-radius:10px; position:relative; overflow:hidden; margin-bottom:15px; }
+#target { position:absolute; width:60px; height:60px; background:#0ff; border-radius:50%; display:none; cursor:pointer; transition:all 0.2s ease; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#000; }
+
+#scoreboard { margin-top:15px; font-size:1.5rem; }
+@media(max-width:700px){ #target{width:40px;height:40px;font-size:0.8rem;} }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="../icons/logo.png" alt="PoliPlay Logo" class="logo">
+  PoliPlay — Хто швидше натисне
+  <nav>
+    <a href="../index.html">Головна</a>
+    <a href="../all-games.html">Усі ігри</a>
+    <a href="../rating.html">Рейтинг</a>
+    <a href="../about.html">Про сайт</a>
+  </nav>
+</header>
+
+<div class="controls">
+  <button onclick="showRules()">Правила</button>
+  <button onclick="startGame()">Почати знову</button>
+  <button onclick="exitGame()">Вийти</button>
+  <select id="difficulty" onchange="changeDifficulty()">
+    <option value="easy" selected>Легкий</option>
+    <option value="medium">Середній</option>
+    <option value="hard">Важкий</option>
+  </select>
+</div>
+
+<div id="game-area">
+  <div id="target">Лови!</div>
+</div>
+<div id="scoreboard">Очки: 0</div>
+
+<script>
+const gameArea = document.getElementById('game-area');
+const target = document.getElementById('target');
+const scoreboard = document.getElementById('scoreboard');
+const difficultySelect = document.getElementById('difficulty');
+
+let score=0;
+let interval;
+let difficulty='easy';
+let showTime=1500;
+
+const times = { easy:1500, medium:1000, hard:600 };
+
+function randomPosition(){
+  const maxX = gameArea.clientWidth - target.clientWidth;
+  const maxY = gameArea.clientHeight - target.clientHeight;
+  const x = Math.floor(Math.random()*maxX);
+  const y = Math.floor(Math.random()*maxY);
+  target.style.left = x+'px';
+  target.style.top = y+'px';
+}
+
+function showTarget(){
+  target.style.display='flex';
+  setTimeout(()=>{
+    target.style.display='none';
+    // пропустив кнопку → втрачає очки
+    score--;
+    if(score<0){ clearInterval(interval); alert("Програв!"); }
+    scoreboard.textContent=`Очки: ${score}`;
+  }, showTime);
+}
+
+function moveTarget(){
+  randomPosition();
+  showTarget();
+}
+
+function startGame(){
+  score=0;
+  scoreboard.textContent=`Очки: ${score}`;
+  showTime=times[difficulty];
+  clearInterval(interval);
+  moveTarget(); // одразу показати
+  interval=setInterval(moveTarget, showTime+200); // невеликий таймінг між появами
+}
+
+target.addEventListener('click',()=>{
+  score++;
+  scoreboard.textContent=`Очки: ${score}`;
+  target.style.display='none';
+});
+
+function showRules(){
+  alert("Мета: швидко натискати на кнопку, яка з'являється в різних місцях.\n- Кнопка з'являється на короткий час\n- Натиснув → +1 очко\n- Пропустив → -1 очко\n- Якщо очки <0 → програв\n- Вибирай рівень складності");
+}
+
+function exitGame(){ if(confirm("Ви точно хочете вийти?")) window.location.href="../index.html"; }
+
+function changeDifficulty(){ difficulty=difficultySelect.value; startGame(); }
+</script>
+
+</body>
+</html>

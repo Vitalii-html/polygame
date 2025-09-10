@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoliPlay — Крестики-нулики</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body { font-family:'Inter', sans-serif; background:#0a0a0a; color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; margin:0; padding:0;}
+header { width:100%; padding:15px 10px; text-align:center; font-size:1.6rem; backdrop-filter:blur(10px); background:rgba(20,20,20,0.5); border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:15px;}
+header img.logo { height:30px; vertical-align:middle; margin-right:8px; }
+nav { margin-top:8px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+nav a { padding:4px 10px; border-radius:20px; background: rgba(255,255,255,0.05); transition:0.3s; color:#fff; text-decoration:none; font-size:0.9rem;}
+nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0 0 6px #00ffff,0 0 12px #a100ff; }
+h2{text-align:center;margin:12px 0;}
+.board-container { display:grid; grid-template-columns: repeat(3,70px); grid-template-rows: repeat(3,70px); gap:4px; margin-bottom:15px; background: rgba(255,255,255,0.05); backdrop-filter: blur(8px); padding:8px; border-radius:12px; touch-action: manipulation;}
+.cell { background: rgba(255,255,255,0.05); display:flex; justify-content:center; align-items:center; font-size:2rem; font-weight:bold; cursor:pointer; border-radius:8px; transition:0.2s; user-select:none; }
+.cell:hover{ box-shadow:0 0 6px #00ffff,0 0 12px #a100ff; transform:translateY(-1px);}
+.controls { display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap; justify-content:center; }
+.controls button { padding:8px 16px; border-radius:20px; border:none; background:linear-gradient(90deg,#00ffff,#a100ff); color:#000; font-weight:600; cursor:pointer; transition:0.2s; font-size:0.9rem;}
+.controls button:hover { box-shadow:0 0 6px #00ffff,0 0 12px #a100ff; }
+select { padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); color:#fff; border:none; cursor:pointer; font-size:0.9rem; }
+
+@media(max-width:480px){
+  .board-container{grid-template-columns:repeat(3,50px); grid-template-rows:repeat(3,50px);}
+  .cell{font-size:1.5rem;}
+  header{font-size:1.4rem; padding:10px 5px;}
+  nav a{font-size:0.8rem; padding:3px 8px;}
+  .controls button, select{font-size:0.8rem; padding:5px 10px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="../icons/logo.png" alt="PoliPlay Logo" class="logo">
+  PoliPlay — Крестики-нулики
+  <nav>
+    <a href="../index.html">Головна</a>
+    <a href="../all-games.html">Усі ігри</a>
+    <a href="../rating.html">Рейтинг</a>
+    <a href="../about.html">Про сайт</a>
+  </nav>
+</header>
+
+<h2>Крестики-нулики</h2>
+
+<div class="controls">
+  <label>Рівень складності: 
+    <select id="difficulty">
+      <option value="easy">Легкий</option>
+      <option value="medium">Середній</option>
+      <option value="hard">Важкий</option>
+    </select>
+  </label>
+</div>
+
+<div class="board-container" id="board"></div>
+
+<div class="controls">
+  <button onclick="showRules()">Правила</button>
+  <button onclick="resetGame()">Почати знову</button>
+  <button onclick="window.location.href='../index.html'">Вийти</button>
+</div>
+
+<script>
+const board = document.getElementById('board');
+let cells = [];
+let moves = 0;
+let difficulty = 'easy';
+const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+document.getElementById('difficulty').addEventListener('change',(e)=>{difficulty=e.target.value;});
+
+function createBoard(){
+  board.innerHTML=''; cells=[]; moves=0;
+  for(let i=0;i<9;i++){
+    const cell=document.createElement('div');
+    cell.classList.add('cell');
+    cell.addEventListener('click',()=>playerMove(i),{once:true});
+    board.appendChild(cell);
+    cells.push(cell);
+  }
+}
+
+function playerMove(i){
+  if(cells[i].textContent!=='') return;
+  cells[i].textContent='❌';
+  moves++;
+  if(checkWin('❌')) { setTimeout(()=>alert('🎉 Ти виграв!'),50); return; }
+  if(moves>=9){ setTimeout(()=>alert('🤝 Нічия!'),50); return; }
+  setTimeout(botMove, 250);
+}
+
+function botMove(){
+  let choice;
+  if(difficulty==='easy'){ choice = randomMove(); }
+  else if(difficulty==='medium'){ choice = Math.random()<0.7 ? mediumMove() : randomMove(); }
+  else{ choice = minimaxMove(); }
+  cells[choice].textContent='⭕';
+  moves++;
+  if(checkWin('⭕')){ setTimeout(()=>alert('💀 Бот виграв!'),50); return; }
+  if(moves>=9){ setTimeout(()=>alert('🤝 Нічия!'),50); return; }
+}
+
+function randomMove(){ return cells.map((c,i)=>c.textContent===''?i:null).filter(v=>v!==null)[Math.floor(Math.random()*cells.filter(c=>c.textContent==='').length)]; }
+
+function mediumMove(){ let block = checkPotentialWin('❌'); if(block!==null) return block; let win = checkPotentialWin('⭕'); if(win!==null) return win; return randomMove(); }
+
+function checkPotentialWin(player){
+  for(let combo of wins){ let vals = combo.map(i=>cells[i].textContent); if(vals.filter(v=>v===player).length===2 && vals.includes('')) return combo[vals.indexOf('')]; }
+  return null;
+}
+
+function checkWin(player){ return wins.some(combo => combo.every(i=>cells[i].textContent===player)); }
+
+function minimaxMove(){
+  let bestScore=-Infinity, move;
+  for(let i=0;i<9;i++){ 
+    if(cells[i].textContent===''){ 
+      cells[i].textContent='⭕'; 
+      let score=minimax(false); 
+      cells[i].textContent=''; 
+      if(score>bestScore){ bestScore=score; move=i; }
+    }
+  }
+  return move;
+}
+
+function minimax(isMax){
+  if(checkWin('⭕')) return 1;
+  if(checkWin('❌')) return -1;
+  if(cells.every(c=>c.textContent!=='')) return 0;
+  if(isMax){
+    let best=-Infinity;
+    for(let i=0;i<9;i++){ if(cells[i].textContent===''){ cells[i].textContent='⭕'; best=Math.max(best,minimax(false)); cells[i].textContent=''; } }
+    return best;
+  } else{
+    let best=Infinity;
+    for(let i=0;i<9;i++){ if(cells[i].textContent===''){ cells[i].textContent='❌'; best=Math.min(best,minimax(true)); cells[i].textContent=''; } }
+    return best;
+  }
+}
+
+function resetGame(){ createBoard(); }
+
+function showRules(){
+  alert("Мета: заповнити ряд/стовпець/діагональ своїми символами ❌ або ⭕.\nТи ходиш першим ❌, бот — ⭕.\nСкладності:\nЛегкий — випадковий бот\nСередній — блокує і намагається виграти\nВажкий — бот грає максимально ефективно.");
+}
+
+createBoard();
+</script>
+
+</body>
+</html>

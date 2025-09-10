@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoliPlay — Дожени кнопку</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body { font-family:'Inter', sans-serif; background:#0a0a0a; color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; margin:0; overflow:hidden;}
+header { width:100%; padding:20px; text-align:center; font-size:2rem; backdrop-filter:blur(10px); background:rgba(20,20,20,0.4); border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:20px;}
+header img.logo { height:40px; vertical-align:middle; margin-right:10px; }
+nav { margin-top:10px; display:flex; justify-content:center; gap:20px; flex-wrap:wrap; }
+nav a { padding:6px 15px; border-radius:25px; background: rgba(255,255,255,0.05); transition:0.3s; color:#fff; text-decoration:none; }
+nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0 0 10px #00ffff,0 0 20px #a100ff; }
+
+.controls { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; justify-content:center; }
+.controls button, .controls select { cursor:pointer; background: rgba(255,255,255,0.05); padding:6px 12px; border-radius:15px; transition:0.3s; border:none; color:#fff; font-weight:500; font-size:0.95rem; }
+.controls button:hover, .controls select:hover { background: linear-gradient(90deg,#00ffff,#a100ff); color:#000; }
+
+#game-area { position:relative; width:90vw; max-width:600px; height:60vh; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden; background: rgba(255,255,255,0.02); border-radius:15px; }
+
+#chase-btn { position:absolute; padding:15px 25px; border:none; border-radius:25px; background: linear-gradient(90deg,#00ffff,#a100ff); color:#000; font-weight:bold; cursor:pointer; transition:0.15s; touch-action: none; user-select:none; -webkit-user-select:none; -ms-user-select:none; }
+
+#scoreboard { margin-top:15px; font-size:1.5rem; }
+
+@media(max-width:500px){ 
+  #chase-btn{padding:10px 15px; font-size:1rem;} 
+  #game-area{height:40vh;} 
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="../icons/logo.png" alt="PoliPlay Logo" class="logo">
+  PoliPlay — Дожени кнопку
+  <nav>
+    <a href="../index.html">Головна</a>
+    <a href="../all-games.html">Усі ігри</a>
+    <a href="../rating.html">Рейтинг</a>
+    <a href="../about.html">Про сайт</a>
+  </nav>
+</header>
+
+<div class="controls">
+  <button onclick="showRules()">Правила</button>
+  <button onclick="startGame()">Почати знову</button>
+  <button onclick="exitGame()">Вийти</button>
+  <select id="difficulty" onchange="changeDifficulty()">
+    <option value="easy" selected>Легкий</option>
+    <option value="medium">Середній</option>
+    <option value="hard">Важкий</option>
+  </select>
+</div>
+
+<div id="game-area">
+  <button id="chase-btn">Лови мене!</button>
+</div>
+
+<div id="scoreboard">Очки: 0 | Час: 30</div>
+
+<script>
+const btn = document.getElementById('chase-btn');
+const area = document.getElementById('game-area');
+const scoreEl = document.getElementById('scoreboard');
+const difficultySelect = document.getElementById('difficulty');
+
+let score = 0;
+let time = 30;
+let timer;
+let difficulty = 'easy';
+let targetX = 0, targetY = 0;
+let posX = 0, posY = 0;
+
+const speeds = { easy: 0.05, medium: 0.09, hard: 0.15 };
+
+function randomTarget(){
+  const maxX = area.clientWidth - btn.offsetWidth;
+  const maxY = area.clientHeight - btn.offsetHeight;
+  targetX = Math.random() * maxX;
+  targetY = Math.random() * maxY;
+}
+
+function animate(){
+  const dx = targetX - posX;
+  const dy = targetY - posY;
+  posX += dx * speeds[difficulty];
+  posY += dy * speeds[difficulty];
+  btn.style.left = posX + 'px';
+  btn.style.top = posY + 'px';
+  requestAnimationFrame(animate);
+}
+
+btn.addEventListener('mouseenter', randomTarget);
+btn.addEventListener('touchstart', (e)=>{
+  e.preventDefault();
+  randomTarget();
+});
+
+btn.addEventListener('click',(e)=>{
+  e.preventDefault();
+  score++;
+  scoreEl.textContent=`Очки: ${score} | Час: ${time}`;
+  randomTarget();
+});
+
+function updateTimer(){
+  time--;
+  scoreEl.textContent=`Очки: ${score} | Час: ${time}`;
+  if(time<=0){
+    clearInterval(timer);
+    alert(`Час вичерпано! Ви набрали ${score} очок.`);
+  }
+}
+
+function startGame(){
+  score=0;
+  time=30;
+  scoreEl.textContent=`Очки: ${score} | Час: ${time}`;
+  randomTarget();
+  posX = targetX;
+  posY = targetY;
+  btn.style.left = posX + 'px';
+  btn.style.top = posY + 'px';
+  clearInterval(timer);
+  timer=setInterval(updateTimer,1000);
+}
+
+function showRules(){
+  alert("Мета: клікати на кнопку якнайбільше разів за 30 секунд.\nКнопка тікає залежно від обраного рівня:\n- Легкий: повільно\n- Середній: трохи швидше\n- Важкий: швидко, але реально ловиться");
+}
+
+function exitGame(){
+  if(confirm("Ви точно хочете вийти?")) window.location.href="../index.html";
+}
+
+function changeDifficulty(){
+  difficulty = difficultySelect.value;
+}
+
+animate();
+startGame();
+</script>
+
+</body>
+</html>
