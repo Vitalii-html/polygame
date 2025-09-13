@@ -6,13 +6,11 @@
   <title>PoliPlay — Мініігри</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* --- Загальні стилі --- */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Inter', sans-serif;
-      background: #0a0a0a;
+      background: radial-gradient(circle at top, #111, #000);
       color: #fff;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -24,108 +22,155 @@
     /* --- Header --- */
     header {
       width: 100%;
-      padding: 30px 20px;
+      padding: 25px 20px;
       text-align: center;
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       font-weight: 700;
-      position: relative;
-      backdrop-filter: blur(10px);
-      background: rgba(20,20,20,0.4);
+      background: rgba(20,20,20,0.6);
+      backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(255,255,255,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      animation: fadeDown 1s ease;
     }
 
     header img.logo {
-      height: 50px;
+      height: 55px;
       vertical-align: middle;
-      margin-right: 15px;
+      margin-right: 12px;
     }
 
-    /* --- Навігація --- */
     nav {
       margin-top: 10px;
       display: flex;
       justify-content: center;
-      gap: 25px;
+      gap: 20px;
       flex-wrap: wrap;
     }
 
     nav a {
-      padding: 8px 15px;
+      padding: 10px 18px;
       border-radius: 25px;
-      background: rgba(255,255,255,0.05);
-      transition: 0.3s;
+      background: rgba(255,255,255,0.07);
+      transition: 0.35s ease;
+      font-weight: 500;
+      font-size: 0.95rem;
     }
 
     nav a:hover {
-      background: linear-gradient(90deg, #00ffff, #a100ff);
-      box-shadow: 0 0 10px #00ffff, 0 0 20px #a100ff;
+      background: linear-gradient(90deg, #00f0ff, #a200ff);
+      box-shadow: 0 0 15px #00f0ff, 0 0 25px #a200ff;
+      transform: translateY(-3px);
     }
 
     /* --- Сітка карток ігор --- */
-    .games-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 25px;
-      width: 90%;
+    main {
+      width: 100%;
       max-width: 1200px;
-      padding: 40px 0;
+      padding: 50px 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 30px;
+      animation: fadeUp 1.2s ease;
     }
 
     .game-card {
       background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(10px);
       border-radius: 20px;
       padding: 25px 15px;
       text-align: center;
-      transition: transform 0.3s, box-shadow 0.3s;
+      transition: 0.35s ease;
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
     }
 
-    .game-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 0 15px #00ffff, 0 0 25px #a100ff;
+    .game-card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(from 180deg, #00f0ff, #a200ff, #00f0ff);
+      animation: rotate 6s linear infinite;
+      opacity: 0;
+      transition: 0.4s;
     }
+
+    .game-card:hover::before { opacity: 0.2; }
 
     .game-card img {
-      width: 80px;
-      height: 80px;
+      width: 85px;
+      height: 85px;
       object-fit: contain;
       margin-bottom: 15px;
+      transition: transform 0.4s ease;
     }
 
+    .game-card:hover img { transform: scale(1.15); }
+
     .game-card h3 {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 600;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
+      z-index: 2;
+      position: relative;
     }
 
     .play-btn {
       display: inline-block;
-      padding: 8px 18px;
+      padding: 10px 20px;
       border-radius: 25px;
-      background: linear-gradient(90deg, #00ffff, #a100ff);
+      background: linear-gradient(90deg, #00f0ff, #a200ff);
       color: #000;
       font-weight: 600;
-      transition: 0.2s;
+      transition: 0.3s;
+      position: relative;
+      z-index: 2;
     }
 
     .play-btn:hover {
-      box-shadow: 0 0 10px #00ffff, 0 0 20px #a100ff;
+      box-shadow: 0 0 12px #00f0ff, 0 0 20px #a200ff;
+      transform: scale(1.08);
+    }
+
+    /* --- Анімації --- */
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* --- Адаптивність --- */
-    @media(max-width: 600px) {
-      header { font-size: 2rem; padding: 25px 10px; }
-      .games-container { gap: 20px; padding: 30px 0; }
-      .game-card img { width: 60px; height: 60px; }
+    @media(max-width: 768px) {
+      header { font-size: 1.8rem; }
+      .game-card img { width: 70px; height: 70px; }
+      .game-card h3 { font-size: 1rem; }
     }
 
+    @media(max-width: 500px) {
+      nav { gap: 12px; }
+      nav a { font-size: 0.8rem; padding: 8px 12px; }
+      main { gap: 20px; padding: 30px 15px; }
+      .game-card { padding: 20px 12px; }
+    }
   </style>
 </head>
 <body>
 
   <header>
-    <!-- Логотип ти підставиш сам -->
     <img src="icons/logo.png" alt="PoliPlay Logo" class="logo">
     PoliPlay
     <nav>
@@ -136,7 +181,7 @@
     </nav>
   </header>
 
-  <main class="games-container">
+  <main>
     <div class="game-card">
       <img src="icons/battleship.png" alt="Морський бій">
       <h3>Морський бій</h3>
