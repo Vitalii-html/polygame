@@ -117,7 +117,10 @@ function changeColor(){
 
 target.addEventListener('click',()=>{ 
   if(isGreen){ score++; } 
-  else { score--; if(score<0){ clearInterval(timer); alert("Програв! Очки < 0"); return; } }
+  else { 
+    score--; 
+    if(score<0){ clearInterval(timer); alert("Програв! Очки < 0"); return; } 
+  }
   scoreEl.textContent=`Очки: ${score} | Час: ${time}`;
 });
 
