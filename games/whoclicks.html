@@ -18,7 +18,9 @@ nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0
 .controls button:hover, .controls select:hover { background: linear-gradient(90deg,#00ffff,#a100ff); color:#000; }
 
 #game-area { width:90vw; max-width:600px; height:400px; background:#111; border:2px solid rgba(255,255,255,0.1); border-radius:10px; position:relative; overflow:hidden; margin-bottom:15px; }
-#target { position:absolute; width:60px; height:60px; background:#0ff; border-radius:50%; display:none; cursor:pointer; transition:all 0.2s ease; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#000; }
+#target { position:absolute; width:60px; height:60px; background:#0ff; border-radius:50%; display:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#000; transition: all 0.2s ease; }
+
+.pulse { transform: scale(1.5); box-shadow: 0 0 10px #fff; }
 
 #scoreboard { margin-top:15px; font-size:1.5rem; }
 @media(max-width:700px){ #target{width:40px;height:40px;font-size:0.8rem;} }
@@ -78,11 +80,12 @@ function randomPosition(){
 function showTarget(){
   target.style.display='flex';
   setTimeout(()=>{
-    target.style.display='none';
-    // пропустив кнопку → втрачає очки
-    score--;
-    if(score<0){ clearInterval(interval); alert("Програв!"); }
-    scoreboard.textContent=`Очки: ${score}`;
+    if(target.style.display==='flex'){ // пропустив кнопку → втрачає очки
+      target.style.display='none';
+      score--;
+      if(score<0){ clearInterval(interval); alert("Програв!"); }
+      scoreboard.textContent=`Очки: ${score}`;
+    }
   }, showTime);
 }
 
@@ -103,6 +106,9 @@ function startGame(){
 target.addEventListener('click',()=>{
   score++;
   scoreboard.textContent=`Очки: ${score}`;
+  // пульс на натиск
+  target.classList.add('pulse');
+  setTimeout(()=>target.classList.remove('pulse'),200);
   target.style.display='none';
 });
 
@@ -113,6 +119,7 @@ function showRules(){
 function exitGame(){ if(confirm("Ви точно хочете вийти?")) window.location.href="../index.html"; }
 
 function changeDifficulty(){ difficulty=difficultySelect.value; startGame(); }
+
 </script>
 
 </body>
