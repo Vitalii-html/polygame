@@ -19,7 +19,8 @@ nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0
 
 #game-area { position:relative; width:90vw; max-width:600px; height:60vh; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden; background: rgba(255,255,255,0.02); border-radius:15px; }
 
-#chase-btn { position:absolute; padding:15px 25px; border:none; border-radius:25px; background: linear-gradient(90deg,#00ffff,#a100ff); color:#000; font-weight:bold; cursor:pointer; transition:0.15s; touch-action: none; user-select:none; -webkit-user-select:none; -ms-user-select:none; }
+#chase-btn { position:absolute; padding:15px 25px; border:none; border-radius:25px; background: linear-gradient(90deg,#00ffff,#a100ff); color:#000; font-weight:bold; cursor:pointer; transition:0.15s, box-shadow 0.2s; touch-action: none; user-select:none; }
+#chase-btn.active { box-shadow:0 0 12px #00ffff,0 0 25px #a100ff; transform: scale(1.15); }
 
 #scoreboard { margin-top:15px; font-size:1.5rem; }
 
@@ -91,17 +92,15 @@ function animate(){
   requestAnimationFrame(animate);
 }
 
-btn.addEventListener('mouseenter', randomTarget);
-btn.addEventListener('touchstart', (e)=>{
-  e.preventDefault();
-  randomTarget();
-});
-
 btn.addEventListener('click',(e)=>{
   e.preventDefault();
   score++;
   scoreEl.textContent=`Очки: ${score} | Час: ${time}`;
   randomTarget();
+  
+  // Анімація тільки при натисканні
+  btn.classList.add('active');
+  setTimeout(()=>btn.classList.remove('active'),150);
 });
 
 function updateTimer(){
