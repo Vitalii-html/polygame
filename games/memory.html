@@ -14,16 +14,16 @@ nav a { padding:4px 10px; border-radius:20px; background: rgba(255,255,255,0.05)
 nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0 0 6px #00ffff,0 0 12px #a100ff; }
 
 .controls { display:flex; gap:8px; margin-bottom:15px; flex-wrap:wrap; justify-content:center; font-size:0.9rem;}
-.controls button { cursor:pointer; background: rgba(255,255,255,0.05); padding:6px 12px; border-radius:20px; transition:0.3s; border:none; color:#fff; font-size:0.9rem; }
-.controls button:hover { background: linear-gradient(90deg,#00ffff,#a100ff); color:#000; }
+.controls button, .controls select { cursor:pointer; background: rgba(255,255,255,0.05); padding:6px 12px; border-radius:20px; transition:0.3s; border:none; color:#fff; font-size:0.9rem; }
+.controls button:hover, .controls select:hover { background: linear-gradient(90deg,#00ffff,#a100ff); color:#000; }
 
 #game { 
   display:grid; 
   grid-gap:10px; 
   justify-content:center; 
   width:95vw; 
-  max-width:500px; 
-  touch-action: none; /* Блокуємо скрол при торканні карт */
+  max-width:600px; 
+  touch-action: none; 
 }
 
 .card { aspect-ratio:1/1; background: rgba(255,255,255,0.05); border-radius:10px; display:flex; justify-content:center; align-items:center; font-size:2rem; cursor:pointer; transition:0.3s; user-select:none; }
@@ -31,7 +31,7 @@ nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0
 .card.flipped, .card.matched { background: rgba(0,255,255,0.3); }
 
 @media(max-width:500px){ 
-  .controls button{font-size:0.8rem; padding:5px 10px;}
+  .controls button, .controls select {font-size:0.8rem; padding:5px 10px;}
   nav a{font-size:0.8rem; padding:3px 8px;}
   header{font-size:1.4rem; padding:10px 5px;}
 }
@@ -54,17 +54,25 @@ nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0
   <button onclick="showRules()">Правила</button>
   <button onclick="startGame()">Почати знову</button>
   <button onclick="exitGame()">Вийти</button>
+  <select id="difficulty" onchange="startGame()">
+    <option value="16" selected>Легкий (16 карт)</option>
+    <option value="36">Середній (36 карт)</option>
+    <option value="64">Важкий (64 карт)</option>
+  </select>
 </div>
 
 <div id="game"></div>
 
 <script>
 const gameEl = document.getElementById('game');
+const difficultySelect = document.getElementById('difficulty');
 let cards = [];
 let firstCard = null;
 let secondCard = null;
 let lockBoard = false;
-const icons = ['🍎','🍌','🍇','🍒','🍉','🥝','🍍','🍓'];
+
+// базові іконки (повторюються, якщо карт більше 16)
+const baseIcons = ['🍎','🍌','🍇','🍒','🍉','🥝','🍍','🍓','🍑','🍋','🥭','🥥','🍈','🍏','🍐','🍊'];
 
 function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 
@@ -73,10 +81,15 @@ function startGame(){
   secondCard=null;
   lockBoard=false;
   gameEl.innerHTML='';
-  cards = shuffle([...icons, ...icons]);
 
-  const cols = window.innerWidth < 400 ? 4 : 4;
+  let totalCards = parseInt(difficultySelect.value);
+  let iconsNeeded = baseIcons.slice(0,totalCards/2);
+  cards = shuffle([...iconsNeeded, ...iconsNeeded]);
+
+  // квадратна сітка
+  let cols = Math.sqrt(totalCards);
   gameEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  gameEl.style.gridTemplateRows = `repeat(${cols}, 1fr)`; // додаємо рядки, щоб точно квадрат
 
   cards.forEach(icon=>{
     const div = document.createElement('div');
