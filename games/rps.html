@@ -141,7 +141,18 @@ nav a:hover {
 let playerScore = 0;
 let botScore = 0;
 
+// Звук кліку
+const clickSound = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
+clickSound.volume = 0.3;
+
 function playerChoice(choice){
+  clickSound.play(); 
+  const btn = event.currentTarget;
+  
+  // Анімація кнопки
+  btn.style.transform = 'scale(1.2)';
+  setTimeout(()=>{ btn.style.transform = 'scale(1)'; },150);
+
   const options = ['rock','paper','scissors'];
   const bot = options[Math.floor(Math.random()*3)];
   let res='';
@@ -168,14 +179,17 @@ function resetGame(){
   botScore=0;
   document.getElementById('result').textContent='';
   document.getElementById('score').textContent=`Гравець: ${playerScore} | Бот: ${botScore}`;
+  clickSound.play();
 }
 
 function showRules(){
   alert("Правила:\n🪨 Камінь б’є ✂️ Ножиці\n✂️ Ножиці ріжуть 📄 Папір\n📄 Папір накриває 🪨 Камінь\nОбирай одну з трьох опцій, щоб зіграти проти бота.");
+  clickSound.play();
 }
 
 function exitGame(){
   if(confirm("Ви точно хочете вийти?")) window.location.href="../index.html";
+  clickSound.play();
 }
 </script>
 
