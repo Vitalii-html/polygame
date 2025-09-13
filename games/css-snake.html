@@ -18,11 +18,13 @@ nav a:hover { background: linear-gradient(90deg, #00ffff, #a100ff); box-shadow:0
 .controls button:hover, .controls select:hover { background: linear-gradient(90deg,#00ffff,#a100ff); color:#000; }
 
 #game-area { display:grid; grid-template-columns:repeat(20,30px); grid-template-rows:repeat(20,30px); gap:1px; background:#111; border:2px solid rgba(255,255,255,0.1); border-radius:10px; touch-action: none; }
-.cell { width:30px; height:30px; background:#222; }
+.cell { width:30px; height:30px; background:#222; transition:0.2s; }
 .snake { background:#0f0; }
 .food { background:#0ff; border-radius:50%; }
 .bad { background:#f00; border-radius:50%; }
 .checkpoint { background:#f0f; border-radius:50%; }
+
+.pulse { transform: scale(1.5); box-shadow: 0 0 10px #fff; }
 
 #scoreboard { margin-top:15px; font-size:1.5rem; }
 
@@ -115,11 +117,16 @@ function spawnCheckpoint(){
 }
 
 function draw(){
-  document.querySelectorAll('.cell').forEach(c=>c.classList.remove('snake','food','bad','checkpoint'));
+  document.querySelectorAll('.cell').forEach(c=>c.classList.remove('snake','food','bad','checkpoint','pulse'));
   snake.forEach(s=>getCell(s.x,s.y).classList.add('snake'));
   if(food.x!==undefined) getCell(food.x,food.y).classList.add('food');
   bad.forEach(b=>getCell(b.x,b.y).classList.add('bad'));
   if(checkpoint.x!==undefined) getCell(checkpoint.x,checkpoint.y).classList.add('checkpoint');
+}
+
+function pulseCell(cell){
+  cell.classList.add('pulse');
+  setTimeout(()=>cell.classList.remove('pulse'),200);
 }
 
 function move(){
@@ -131,9 +138,25 @@ function move(){
   }
   snake.unshift(head);
 
-  if(head.x===food.x && head.y===food.y){ score++; spawnFood(); }
-  else if(bad.some(b=>b.x===head.x && b.y===head.y)){ score--; if(snake.length>1) snake.pop(); spawnBad(); }
-  else if(head.x===checkpoint.x && head.y===checkpoint.y){ spawnFood(); spawnBad(); spawnCheckpoint(); }
+  const headCell = getCell(head.x, head.y);
+
+  if(head.x===food.x && head.y===food.y){
+    score++;
+    pulseCell(headCell);
+    spawnFood();
+  }
+  else if(bad.some(b=>b.x===head.x && b.y===head.y)){
+    score--;
+    pulseCell(headCell);
+    if(snake.length>1) snake.pop();
+    spawnBad();
+  }
+  else if(head.x===checkpoint.x && head.y===checkpoint.y){
+    pulseCell(headCell);
+    spawnFood();
+    spawnBad();
+    spawnCheckpoint();
+  }
   else snake.pop();
 
   scoreboard.textContent=`Очки: ${score}`;
@@ -185,7 +208,7 @@ area.addEventListener('touchend', e=>{
 });
 
 function showRules(){
-  alert("Класична змійка:\n- Збирай їжу (синя) → ростеш і отримуєш очки\n- Шкідлива їжа (червона) → зменшуєшся і втрачаєш очки\n- Чекпойнт (фіолетова) → респавн всіх об'єктів\n- Стріли / WASD для керування або свайпи на телефоні\n- Вибирай рівень складності");
+  alert("Класична змійка:\n- Збирай їжу (синя) → ростеш і отримуєш очки\n- Шкідлива їжа (червона) → зменшуєшся і втрачаєш очки\n- Чекпойнт (фіолетова) → респавн всіх об'єктів\n- Стріли / WASD для керування або свайпи на телефоні\n- Вибирай рівень складності\n- Об'єкти світяться при контакті");
 }
 
 function exitGame(){ if(confirm("Ви точно хочете вийти?")) window.location.href="../index.html"; }
